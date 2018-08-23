@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.2)
 project(MoexTask VERSION 0.0.1)
 
-add_executable(MoexTask Main.cpp Server.cpp)
+add_executable(MoexTask
+    Main.cpp
+    Server.cpp
+    Server.h
+    TsvParser.cpp
+    TsvParser.h)
+
 add_executable(MoexTaskClient Client.cpp)
 add_library(MoexTask Lib.cpp)
 
