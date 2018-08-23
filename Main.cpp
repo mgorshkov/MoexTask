@@ -6,16 +6,30 @@ int main(int argc, char* argv[])
 {
     try
     {
-        if (argc != 5)
+        if (argc == 1)
         {
-            std::cerr << "Simple statistics server. Usage: Server <data file name> <data FIFO name> <data TCP port> <statistics UDP port>" << std::endl;
+            std::cerr << "Simple statistics server. Usage: StatisticsServer -filename=<data file name> -fifoname=<data FIFO name> -tcpport=<data TCP port> -udpport=<statistics UDP port>" << std::endl;
             return 1;
         }
 
-        std::string dataFileName = argv[1];
-        std::string fifoFileName = argv[2];
-        auto tcpPort = std::atoi(argv[3]);
-        auto udpPort = std::atoi(argv[4]);
+        CommandLineParser commandLineParser(argc, argv);
+
+        auto dataFileName = commandLineParser.GetOption("filename");
+        auto fifoFileName = commandLineParser.GetOption("fifoname");
+        auto tcpPort = commandLineParser.GetOption("tcpport");
+        auto udpPort = commandLineParser.GetOption("udpport");
+        
+        if (!dataFileName && !fifoFileName && !tcpPort)
+        {
+            std::cerr << "No data sources specified" << std::endl;
+            return 1;
+        }
+        
+        if (!udpPort)
+        {
+            std::cerr << "UDP port is not specified" << std::endl;
+            return 1;
+        }
 
         Server server(dataFileName, fifoFileName, tcpPort, udpPort);
 
