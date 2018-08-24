@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        Server server(dataFileName, fifoFileName, tcpPort, udpPort);
+        StatisticsServer server(dataFileName, fifoFileName, tcpPort, udpPort);
 
         server.Run();
     }

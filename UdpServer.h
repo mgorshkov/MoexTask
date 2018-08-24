@@ -7,4 +7,5 @@ public:
 
 private:
     static const int BufSize = 1024;
+    int mSocket;
 };

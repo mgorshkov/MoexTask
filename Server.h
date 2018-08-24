@@ -9,4 +9,6 @@ public:
     void Run();
 
 private:
+    TcpServer mTcpServer;
+    UdpServer mUdpServer;
 };
