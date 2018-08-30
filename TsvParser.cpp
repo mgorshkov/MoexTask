@@ -2,29 +2,15 @@
 
 const TsvParser::ColumnName TsvParser::mColumnsNames =
 {
-    { Column::TIME, "TIME" },
     { Column::EVENT, "EVENT" },
-    { Column::CALLCNT, "CALLCNT" },
-    { Column::FILLCNT, "FILLCNT" },
-    { Column::AVGSIZE, "AVGSIZE" },
-    { Column::MAXSIZE, "MAXSIZE" },
-    { Column::AVGFULL, "AVGFULL" },
-    { Column::MAXFULL, "MAXFULL" },
-    { Column::MINFULL, "MINFULL" },
-    { Column::AVGDLL, "AVGDLL" },
-    { Column::MAXDLL, "MAXDLL" },
-    { Column::AVGTRIP, "AVGTRIP" },
-    { Column::MAXTRIP, "MAXTRIP" },
-    { Column::AVGTEAP, "AVGTEAP" },
-    { Column::MAXTEAP, "MAXTEAP" },
-    { Column::AVGTSMR, "AVGTSMR" },
-    { Column::MAXTSMR, "MAXTSMR" },
-    { Column::MINTSMR, "MINTSMR" }
+    { Column::AVGTSMR, "AVGTSMR" }
 };
 
-Data TsvParser::GetData() const
+TsvParser::TsvParser(std::istream& aStream)
+    : mIsValid(false)
+    , mStream(aStream)
 {
-    return mData;
+    ParseHeader();
 }
 
 std::vector<std::string> Split(const std::string &str, char d)
@@ -46,7 +32,7 @@ std::vector<std::string> Split(const std::string &str, char d)
     return r;
 }
 
-void TsvParser::Parse(std::iostream& aStream)
+void TsvParser::ParseHeader(std::iostream& aStream)
 {
     std::string line;
     // header
@@ -54,40 +40,38 @@ void TsvParser::Parse(std::iostream& aStream)
 
     auto strs = Split(line);
 
-    if (strs.size() != Size)
+    for (std::size_t i = 0; i < columnCount; ++i)
     {
-        std::cerr << "Incorrect stream format" << std::endl;
-        return;
-    }
-
-    std::size_t surnameIndex, roleIndex;
-    std::vector <std::wstring> columns = { L"Фамилия", L"Специальность" };
-    if (strs[0] == columns[0] && strs[1] == columns[1])
-    {
-        surnameIndex = 0;
-        roleIndex = 1;
-    }
-    else if (strs[0] == columns[1] && strs[1] == columns[0])
-    {
-        surnameIndex = 1;
-        roleIndex = 0;
-    }
-    else
-    {
-        std::wcerr << L"Неверный формат, файл " << aPath.wstring() << L", пропускаем" << std::endl;
-        return;
-    }
-
-    while (std::getline(stream, line))
-    {
-        auto strs = Split(line);
-        if (strs.size() != 2)
+        for (std::size_t j = 0; j < strs.size(), ++j)
         {
-            std::wcerr << L"Неверный формат, файл " << aPath.wstring() << L", строка " << line << L", пропускаем" << std::endl;
-            continue;
+            if (strs[j] == ColumnNames[i].mName)
+                mColumns[i] = j;
         }
-
-        auto department = aPath.stem().wstring();
-        mEmployees.insert({department, strs[surnameIndex], strs[roleIndex]});
     }
+
+    for (std::size_t i = 0; i < columnCount; ++i)
+    {
+        if (mColumns[i] == -1)
+        {
+            std::cerr << "Incorrect stream format" << std::endl;
+            mIsValid = false;
+            break;
+        }
+    }
+
+    mIsValid = true;
+}
+
+DataPtr TsvParser::Produce() const
+{
+    if (!mIsValid())
+        return nullptr;
+
+    std::string line;        
+    // data
+    if (!std::getline(mStream, line))
+        return nullptr;
+
+    auto strs = Split(line);
+    return std::make_unique<Data>(strs[columns[0]], std::atoi(strs[columns[1]]));
 }

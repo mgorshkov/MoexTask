@@ -9,34 +9,18 @@ class TsvParser
 public:
     TsvParser(std::istream& aStream);
 
-    Data GetData() const;
+    DataPtr Produce() const override;
 
 private:
-    void Parse(std::istream& aStream);
+    void ParseHeader(std::istream& aStream);
 
-    Data mData;
+    bool mIsValid;
+    std::istream& mStream;
 
     enum class Column
     {
-        TIME,
         EVENT,
-        CALLCNT,
-        FILLCNT,
-        AVGSIZE,
-        MAXSIZE,
-        AVGFULL,
-        MAXFULL,
-        MINFULL,
-        AVGDLL,
-        MAXDLL,
-        AVGTRIP,
-        MAXTRIP,
-        AVGTEAP,
-        MAXTEAP,
-        AVGTSMR,
-        MAXTSMR,
-        MINTSMR,
-        Size
+        AVGTSMR
     };
 
     struct ColumnNames
@@ -45,5 +29,8 @@ private:
         const char* mName;
     };
 
-    static const ColumnName mColumnsNames;
+    static const ColumnName mColumnsNames[];
+
+    static constexpr columnCount = sizeof(ColumnNames) / sizeof(ColumNames[0]);
+    std::array<columnCount> mColumns{-1};
 };

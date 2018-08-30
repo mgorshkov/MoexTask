@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Server.h"
+#include "StatisticsServer.h"
 
 int main(int argc, char* argv[])
 {
