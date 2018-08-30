@@ -2,20 +2,20 @@
 
 #include <fstream>
 
+#include "Defines.h"
+#include "IProducer.h"
+#include "IStopper.h"
+#include "TsvParser.h"
+
 class FileDataSource : public IProducer
 {
 public:
     FileDataSource(IStopperPtr aStopper, const std::string& aFileName);
 
-    DataPtr Produce() override const;
+    DataPtr Produce() const override;
 
 private:
-    std::ifstream aStream;
+    IStopperPtr mStopper;
+    TsvParser mParser;
+    std::ifstream mStream;
 };
-
-
-TaskPtr Producer::Produce() const
-{
-    auto request = Original::GetRequest(mStopper);
-    return std::make_unique<Task>(request);
-}

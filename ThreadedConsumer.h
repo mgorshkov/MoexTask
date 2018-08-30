@@ -1,34 +1,36 @@
 #pragma once
 
+#include "ThreadedActor.h"
+
 template <typename DependentConsumer>
 class ThreadedConsumer : public ThreadedActor
 {
 public:
-	template <typename... Args>
-	ThreadedConsumer(Args&&... args)
-		: ThreadedActor(std::forward<Args>(args)...)
-	{
-	}
+    ThreadedConsumer(Synchronizer& aSynchronizer)
+        : ThreadedActor(aSynchronizer)
+    {
+    }
 
 protected:
-	void Run() override
-	{
-		DependentConsumer dependentConsumer(mSynchronizer.mStopper);
-		while (!mSynchronizer.IsStopped())
-		{
-			Mutex mutex;
-			UniqueLock<Mutex> lock(mutex);
-			mSynchronizer.Wait(mutex);
-			if (!mSynchronizer.IsStopped())
-				ProcessElement(dependentConsumer);
-		}
-	}
+    template <typename... Args>
+    void Run(std::forward<Args>(args)...)
+    {
+        DependentConsumer dependentConsumer(mSynchronizer.mStopper);
+        while (!mSynchronizer.IsStopped())
+        {
+            Mutex mutex;
+            UniqueLock<Mutex> lock(mutex);
+            mSynchronizer.Wait(mutex);
+            if (!mSynchronizer.IsStopped())
+                ProcessElement(dependentConsumer);
+        }
+    }
 
-	void ProcessElement(IConsumer& aDependentConsumer)
-	{
-		auto element = mSynchronizer.GetQueueElement();
-		if (element)
-			aDependentConsumer.Consume(std::move(element));
-	}
+    void ProcessElement(IConsumer& aDependentConsumer)
+    {
+        auto element = mSynchronizer.GetQueueElement();
+        if (element)
+            aDependentConsumer.Consume(std::move(element));
+    }
 };
 

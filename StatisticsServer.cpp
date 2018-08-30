@@ -2,7 +2,7 @@
 
 StatisticsServer::StatisticsServer(std::optional<std::string> aDataFileName, std::optional<std::string> aFifoFileName, std::optional<int> aTcpPort, int aUdpPort)
     : mDataFileName(aDataFileName)
-    , aFifoFileName(aFifoFileName)
+    , mFifoFileName(aFifoFileName)
     , mTcpPort(aTcpPort)
     , mUdpPort(aUdpPort)
 {
@@ -11,7 +11,7 @@ StatisticsServer::StatisticsServer(std::optional<std::string> aDataFileName, std
 void StatisticsServer::Init()
 {
     if (mDataFileName)
-        mSources.emplace_back(std::make_unique<FileDataSource>(*mDataFileName));
+        mSources.emplace_back(std::make_unique<FileDataSource>(mStopper, *mDataFileName));
     if (mFifoFileName)
         mSources.emplace_back(std::make_unique<FifoDataSource>(*mFifoFileName));
     if (mTcpPort)
@@ -20,6 +20,9 @@ void StatisticsServer::Init()
 
 void StatisticsServer::Run()
 {
+    mStopper = std::make_shared<IStopper>();
+    Synchronizer synchronizer(mStopper);
+
     Log log;
     for (const auto& source : sources)
         log += source->ReadLog();

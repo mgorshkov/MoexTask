@@ -1,9 +1,8 @@
 #include "IConsumer.h"
+#include "Defines.h"
 
 class StatisticsAnalyzer : public IConsumer
 {
 public:
-    virtual void Consume(DataPtr&& aData) = 0;
-
-
+    void Consume(DataPtr&& aData) override;
 };

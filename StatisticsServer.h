@@ -5,7 +5,11 @@
 #include <memory>
 
 #include "ThreadedProducer.h"
+#include "FileDataSource.h"
+#include "StatisticsAnalyzer.h"
 #include "UdpServer.h"
+#include "Synchronizer.h"
+#include "IStopper.h"
 
 class StatisticsServer
 {
@@ -15,7 +19,18 @@ public:
     void Run();
 
 private:
+    std::optional<std::string> mDataFileName;
+    std::optional<std::string> mFifoFileName;
+    std::optional<int> mTcpPort;
+    int mUdpPort;
+
+    IStopperPtr mStopper;
+ 
     ThreadedProducer<FileDataSource> mFileDataSource;
-    StatisticsAnalyzer mAnalyzer;
+    ThreadedProducer<FifoDataSource> mFifoDataSource;
+    ThreadedProducer<TcpDataSource> mTcpDataSource;
+    
+    ThreadedConsumer<StatisticsAnalyzer> mAnalyzer;
+
     UdpServer mUdpServer;
 };

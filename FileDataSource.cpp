@@ -1,13 +1,14 @@
 #include "FileDataSource.h"
+#include "TsvParser.h"
 
 FileDataSource::FileDataSource(IStopperPtr aStopper, const std::string& aFileName)
     : mStopper(aStopper)
     , mStream(aFileName)
+    , mParser(mStream)
 {
 }
 
-DataPtr FileDataSource::Produce()
+DataPtr FileDataSource::Produce() const
 {
-    TsvParser parser(mStream);
-    return parser.GetLog();
+    return mParser.Produce();
 }

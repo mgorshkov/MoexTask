@@ -3,8 +3,9 @@
 #include <iostream>
 
 #include "Defines.h"
+#include "IProducer.h"
 
-class TsvParser
+class TsvParser : public IProducer
 {
 public:
     TsvParser(std::istream& aStream);
@@ -23,14 +24,18 @@ private:
         AVGTSMR
     };
 
-    struct ColumnNames
+    struct ColumnName
     {
         Column mColumn;
         const char* mName;
     };
 
-    static const ColumnName mColumnsNames[];
+    static constexpr ColumnName mColumnNames[] =
+    {
+        { Column::EVENT, "EVENT" },
+        { Column::AVGTSMR, "AVGTSMR" }
+    };
 
-    static constexpr columnCount = sizeof(ColumnNames) / sizeof(ColumNames[0]);
-    std::array<columnCount> mColumns{-1};
+    static constexpr std::size_t mColumnCount = sizeof(mColumnNames) / sizeof(mColumnNames[0]);
+    std::array<int, mColumnCount> mColumns;
 };

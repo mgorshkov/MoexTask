@@ -1,17 +1,17 @@
 #pragma once
 
-#include <Windows.h>
+#include <atomic>
 
 #include "IStopper.h"
 
 class Stopper : public IStopper
 {
 public:
-	void Stop() override;
+    void Stop() override;
 
-	bool IsStopped() const override;
+    bool IsStopped() const override;
 
 private:
-	volatile LONG mDone{0};
+    std::atomic_bool mDone{false};
 };
 

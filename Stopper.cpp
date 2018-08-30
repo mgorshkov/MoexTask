@@ -1,12 +1,12 @@
-#include "stdafx.h"
+#include "Stopper.h"
 
 void Stopper::Stop()
 {
-	InterlockedExchange(&mDone, 1);
+    mDone = true;
 }
 
 bool Stopper::IsStopped() const
 {
-	return mDone == 1;
+    return mDone.load();
 }
 

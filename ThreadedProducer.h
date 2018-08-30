@@ -1,19 +1,24 @@
 #pragma once
 
+#include <chrono>
+
+#include "ThreadedActor.h"
+#include "Synchronizer.h"
+
 template <typename DependentProducer>
 class ThreadedProducer : public ThreadedActor
 {
 public:
-    template <typename... Args>
-    ThreadedProducer(Args&&... args)
-        : ThreadedActor(std::forward<Args>(args)...)
+    ThreadedProducer(Synchronizer& aSynchronizer)
+        : ThreadedActor(aSynchronizer)
     {
     }
     
 protected:
-    void Run() override
+    template <typename... Args>
+    void Run(Args&&... args)
     {
-        DependentProducer dependentProducer(mSynchronizer.mStopper);
+        DependentProducer dependentProducer(mSynchronizer.mStopper, std::forward<Args>(args)...);
         while (!mSynchronizer.IsStopped())
         {
             DataPtr data = dependentProducer.Produce();
@@ -22,7 +27,7 @@ protected:
 
             mSynchronizer.EnqueueData(std::move(data));
 
-            Sleep(10);
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 };

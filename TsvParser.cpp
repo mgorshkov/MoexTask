@@ -1,11 +1,5 @@
 ﻿#include "TsvParser.h"
 
-const TsvParser::ColumnName TsvParser::mColumnsNames =
-{
-    { Column::EVENT, "EVENT" },
-    { Column::AVGTSMR, "AVGTSMR" }
-};
-
 TsvParser::TsvParser(std::istream& aStream)
     : mIsValid(false)
     , mStream(aStream)
@@ -40,8 +34,9 @@ void TsvParser::ParseHeader(std::iostream& aStream)
 
     auto strs = Split(line);
 
-    for (std::size_t i = 0; i < columnCount; ++i)
+    for (std::size_t i = 0; i < mColumnCount; ++i)
     {
+        mColumns[i] = -1;
         for (std::size_t j = 0; j < strs.size(), ++j)
         {
             if (strs[j] == ColumnNames[i].mName)
@@ -49,7 +44,7 @@ void TsvParser::ParseHeader(std::iostream& aStream)
         }
     }
 
-    for (std::size_t i = 0; i < columnCount; ++i)
+    for (std::size_t i = 0; i < mColumnCount; ++i)
     {
         if (mColumns[i] == -1)
         {

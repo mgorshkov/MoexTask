@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "CommandLineParser.h"
 #include "StatisticsServer.h"
 
 int main(int argc, char* argv[])
@@ -31,7 +32,7 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        StatisticsServer server(dataFileName, fifoFileName, tcpPort, udpPort);
+        StatisticsServer server(dataFileName, fifoFileName, tcpPort ? std::atoi(tcpPort->c_str()) : std::make_optional<int>(), std::atoi(udpPort->c_str()));
 
         server.Run();
     }
