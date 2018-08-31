@@ -5,7 +5,10 @@
 #include <memory>
 
 #include "ThreadedProducer.h"
+#include "ThreadedConsumer.h"
 #include "FileDataSource.h"
+#include "FifoDataSource.h"
+#include "TcpDataSource.h"
 #include "StatisticsAnalyzer.h"
 #include "UdpServer.h"
 #include "Synchronizer.h"
