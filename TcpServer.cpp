@@ -36,7 +36,7 @@ void TcpServer::SetSockOpt()
         (const void*)&optval, sizeof(optval));
 
     struct timeval readTimeout;
-    readTimeout.tv_sec = 0;
+    readTimeout.tv_sec = 10;
     readTimeout.tv_usec = 0;
     setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, &readTimeout, sizeof(readTimeout));
 }

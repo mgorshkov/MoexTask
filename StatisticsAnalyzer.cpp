@@ -13,13 +13,6 @@ void StatisticsAnalyzer::Consume(DataPtr&& aData)
     mEvents[aData->mEvent].insert(aData->mAvgTsMr);
 }
 
-void StatisticsAnalyzer::DumpStatistics()
-{
-    auto stats = AllStats();
-    for (const auto& stat : stats)
-        std::cout << stat;
-}
-
 std::vector<Statistics> StatisticsAnalyzer::AllStats() const
 {
     std::vector<Statistics> statistics;
@@ -35,10 +28,16 @@ Statistics StatisticsAnalyzer::StatsByEvent(const EventName& aEvent) const
     if (eventsIt != mEvents.end())
     {
         statistics.mMin = *eventsIt->second.begin();
-
-        auto timesIt = eventsIt->second.begin();
-        std::advance(timesIt, eventsIt->second.size() / 2);
-        statistics.mMedian = *timesIt;
+        auto CalcStats = [&eventsIt](double percent)
+        {
+            auto timesIt = eventsIt->second.begin();
+            std::advance(timesIt, eventsIt->second.size() * 0.5);
+            return *timesIt;
+        };
+        statistics.mMedian = CalcStats(0.5);
+        statistics.m90 = CalcStats(0.9);
+        statistics.m99 = CalcStats(0.99);
+        statistics.m999 = CalcStats(0.999);
     }
     return statistics;
 }

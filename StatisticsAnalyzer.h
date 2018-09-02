@@ -10,8 +10,6 @@ public:
 
     void Consume(DataPtr&& aData) override;
 
-    void DumpStatistics();
-
     std::vector<Statistics> AllStats() const override;
     Statistics StatsByEvent(const EventName& aEvent) const override;
 

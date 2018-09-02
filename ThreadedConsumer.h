@@ -13,9 +13,9 @@ public:
     {
     }
 
-    void DumpStatistics()
+    DependentConsumer* GetConsumer()
     {
-        mDependentConsumer.DumpStatistics();
+        return &mDependentConsumer;
     }
 
 protected:

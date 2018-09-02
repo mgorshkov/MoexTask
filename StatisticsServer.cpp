@@ -13,10 +13,10 @@ StatisticsServer::StatisticsServer(
     : mDataFileName(aDataFileName)
     , mFifoFileName(aFifoFileName)
     , mTcpPort(aTcpPort)
-    , mUdpServer(aUdpPort)
     , mStopper(std::make_shared<Stopper>())
     , mSynchronizer(mStopper)
     , mAnalyzer(mSynchronizer)
+    , mUdpServer(aUdpPort, mAnalyzer.GetConsumer())
 {
     mUdpServer.Init();
     mThis = this;
@@ -24,10 +24,11 @@ StatisticsServer::StatisticsServer(
 
 void StatisticsServer::Init()
 {
+    mSources.clear();
     if (mDataFileName)
         mSources.emplace_back(std::make_unique<ThreadedProducer<FileDataSource>>(mSynchronizer, *mDataFileName));
     if (mFifoFileName)
-        mSources.emplace_back(std::make_unique<ThreadedProducer<FifoDataSource>>(mSynchronizer, *mFifoFileName));
+        mSources.emplace_back(std::make_unique<ThreadedProducer<FileDataSource>>(mSynchronizer, *mFifoFileName));
     if (mTcpPort)
         mSources.emplace_back(std::make_unique<ThreadedProducer<TcpDataSource>>(mSynchronizer, *mTcpPort));
 }
@@ -42,6 +43,10 @@ void StatisticsServer::Start()
 
 void StatisticsServer::Loop()
 {
+#ifdef DEBUG_PRINT
+    std::cout << "StatisticsServer::Loop" << std::endl;
+#endif
+
     signal(SIGINT, &StatisticsServer::ExternalBreak);
     signal(SIGSTOP, &StatisticsServer::ExternalBreak);
     signal(SIGUSR1, &StatisticsServer::DumpStatistics);
@@ -52,10 +57,18 @@ void StatisticsServer::Loop()
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
+#ifdef DEBUG_PRINT
+    std::cout << "StatisticsServer::Loop, before Join" << std::endl;
+#endif
+
     for (const auto& source : mSources)
         source->Join();
 
     mAnalyzer.Join();
+
+#ifdef DEBUG_PRINT
+    std::cout << "StatisticsServer::Loop, finished" << std::endl;
+#endif
 }
 
 void StatisticsServer::ExternalBreak(int)
@@ -69,5 +82,12 @@ void StatisticsServer::ExternalBreak(int)
 
 void StatisticsServer::DumpStatistics(int)
 {
-    mThis->mAnalyzer.DumpStatistics();
+#ifdef DEBUG_PRINT
+    std::cout << "StatisticsServer::DumpStatistics" << std::endl;
+#endif
+
+    auto stats = mThis->mAnalyzer.GetConsumer()->AllStats();
+    for (const auto& stat : stats)
+        std::cout << stat;
 }
+

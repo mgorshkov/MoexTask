@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <iostream>
+#include <sstream>
 #include <string.h>
 #include <netdb.h>
 #include <sys/types.h> 
@@ -11,8 +12,9 @@
 
 #include "UdpServer.h"
 
-UdpServer::UdpServer(int aPort)
+UdpServer::UdpServer(int aPort, IStatsQuery* aStatsQuery)
     : mPort(aPort)
+    , mStatsQuery(aStatsQuery)
     , mSocket(-1)
 {
 }
@@ -35,7 +37,7 @@ void UdpServer::SetSockOpt()
         (const void*)&optval, sizeof(optval));
 
     struct timeval readTimeout;
-    readTimeout.tv_sec = 0;
+    readTimeout.tv_sec = 10;
     readTimeout.tv_usec = 0;
     setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, &readTimeout, sizeof(readTimeout));
 }
@@ -73,19 +75,21 @@ bool UdpServer::Loop()
 {
     sockaddr_in clientaddr;
 
-    char buf[BufSize] = {0};
+    std::string buf;
+    buf.reserve(BufSize);
 
     socklen_t clientlen = sizeof(clientaddr);
 
-    int n = recvfrom(mSocket, buf, sizeof(buf), 0,
+    int n = recvfrom(mSocket, &buf[0], BufSize, 0,
         (sockaddr*)&clientaddr, &clientlen);
     if (n < 0)
-    {
-        std::cerr << "error in recvfrom";
         return false;
-    }
 
-    hostent *hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, 
+    auto statistics = mStatsQuery->StatsByEvent(buf);
+    std::ostringstream stream(buf);
+    stream << statistics;
+
+    hostent *hostp = gethostbyaddr((const char*)&clientaddr.sin_addr.s_addr, 
           sizeof(clientaddr.sin_addr.s_addr), AF_INET);
     if (hostp == nullptr)
     {
@@ -96,10 +100,10 @@ bool UdpServer::Loop()
     if (hostaddrp == nullptr)
     {
         std::cerr << "error on inet_ntoa" << std::endl << "datagram from " << hostp->h_name << "(" << hostaddrp << ")" << std::endl, 
-        std::cerr << "received " << strlen(buf) << "/" << n << " bytes: " << buf << std::endl;
+        std::cerr << "received " << BufSize << "/" << n << " bytes: " << buf << std::endl;
         return false;
     }   
-    n = sendto(mSocket, buf, strlen(buf), 0, 
+    n = sendto(mSocket, buf.c_str(), BufSize, 0, 
        (struct sockaddr *) &clientaddr, clientlen);
     if (n < 0)
     {

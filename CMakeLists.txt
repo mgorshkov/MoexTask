@@ -10,8 +10,6 @@ endif()
 
 add_executable(StatisticsServer
     Defines.h
-    FifoDataSource.h
-    FifoDataSource.cpp
     FileDataSource.h
     FileDataSource.cpp
     IConsumer.h

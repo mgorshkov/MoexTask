@@ -1,9 +1,11 @@
 #pragma once
 
+#include "IStatsQuery.h"
+
 class UdpServer
 {
 public:
-    UdpServer(int aPort);
+    UdpServer(int aPort, IStatsQuery* aStatsQuery);
 
     bool Init();
 
@@ -19,4 +21,6 @@ private:
     static const int BufSize = 1024;
     int mPort;
     int mSocket;
+
+    IStatsQuery* mStatsQuery;
 };
