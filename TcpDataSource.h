@@ -18,7 +18,7 @@ class TcpDataSource : public IProducer, public IReader
 public:
     TcpDataSource(IStopperPtr aStopper, int mPort);
 
-    DataPtr Produce() const override;
+    DataPtr Produce() override;
 
 private:
     static void ThreadProc(TcpDataSource* aContext);
@@ -30,7 +30,7 @@ private:
     TsvParser mParser;
 
     std::stringstream mStream;
-    mutable std::mutex mStreamMutex;
+    std::mutex mStreamMutex;
     std::condition_variable mCondition;
     std::atomic_bool mDone{false};
     std::atomic_bool mNotified{false};

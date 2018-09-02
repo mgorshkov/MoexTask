@@ -8,7 +8,7 @@ TcpDataSource::TcpDataSource(IStopperPtr aStopper, int aPort)
 {
 }
 
-DataPtr TcpDataSource::Produce() const
+DataPtr TcpDataSource::Produce()
 {
     std::lock_guard<std::mutex> lk(mStreamMutex);
     return mParser.Produce();

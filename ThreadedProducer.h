@@ -22,6 +22,9 @@ protected:
         while (!mSynchronizer.IsStopped())
         {
             DataPtr data = mDependentProducer.Produce();
+#ifdef DEBUG_PRINT
+            std::cout << "ThreadedProducer::Run, data=" << data << ";" << std::endl;
+#endif
             if (!data)
                 break;
 

@@ -1,16 +1,23 @@
 cmake_minimum_required(VERSION 3.2)
 project(MoexTask VERSION 0.0.1)
 
+set(DEBUG_PRINT "1")
+
+if (DEBUG_PRINT)
+    message("DEBUG_PRINT is activated!")
+    add_definitions(-DDEBUG_PRINT)
+endif()
+
 add_executable(StatisticsServer
     Defines.h
     FifoDataSource.h
     FifoDataSource.cpp
     FileDataSource.h
     FileDataSource.cpp
-    IAnswerer.h
     IConsumer.h
     IProducer.h
     IReader.h
+    IStatsQuery.h
     IStopper.h
     StatisticsServerMain.cpp
     StatisticsAnalyzer.h

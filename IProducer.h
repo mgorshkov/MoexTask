@@ -6,6 +6,6 @@ class IProducer
 {
 public:
     virtual ~IProducer() = default;
-    virtual DataPtr Produce() const = 0;
+    virtual DataPtr Produce() = 0;
 };
 

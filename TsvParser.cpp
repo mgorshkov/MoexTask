@@ -7,18 +7,18 @@ TsvParser::TsvParser(std::istream& aStream)
 {
 }
 
-std::vector<std::string> Split(const std::string &str, char d = '\t')
+std::vector<std::string> Split(const std::string& str, char sep = '\t')
 {
     std::vector<std::string> r;
 
     std::string::size_type start = 0;
-    auto stop = str.find_first_of(d);
-    while(stop != std::string::npos)
+    auto stop = str.find_first_of(sep);
+    while (stop != std::string::npos)
     {
         r.push_back(str.substr(start, stop - start));
 
         start = stop + 1;
-        stop = str.find_first_of(d, start);
+        stop = str.find_first_of(sep, start);
     }
 
     r.push_back(str.substr(start));
@@ -55,15 +55,15 @@ void TsvParser::ParseHeader()
     }
 
     mIsValid = true;
-    mHeaderParsed = true;
+    mIsHeaderParsed = true;
 }
 
-DataPtr TsvParser::Produce() const
+DataPtr TsvParser::Produce()
 {
     if (!mIsValid)
         return nullptr;
 
-    if (!mHeaderParser)
+    if (!mIsHeaderParsed)
         ParseHeader();
 
     std::string line;        

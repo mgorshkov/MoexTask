@@ -13,6 +13,11 @@ public:
     {
     }
 
+    void DumpStatistics()
+    {
+        mDependentConsumer.DumpStatistics();
+    }
+
 protected:
     void Run() override
     {

@@ -5,7 +5,11 @@
 
 StatisticsServer* StatisticsServer::mThis = 0;
 
-StatisticsServer::StatisticsServer(std::optional<std::string> aDataFileName, std::optional<std::string> aFifoFileName, std::optional<int> aTcpPort, int aUdpPort)
+StatisticsServer::StatisticsServer(
+    std::optional<std::string> aDataFileName,
+    std::optional<std::string> aFifoFileName,
+    std::optional<int> aTcpPort,
+    int aUdpPort)
     : mDataFileName(aDataFileName)
     , mFifoFileName(aFifoFileName)
     , mTcpPort(aTcpPort)
@@ -48,7 +52,6 @@ void StatisticsServer::Loop()
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-
     for (const auto& source : mSources)
         source->Join();
 
@@ -57,9 +60,14 @@ void StatisticsServer::Loop()
 
 void StatisticsServer::ExternalBreak(int)
 {
+#ifdef DEBUG_PRINT
+    std::cout << "StatisticsServer::ExternalBreak" << std::endl;
+#endif
+
     mThis->mSynchronizer.Stop();
 }
 
 void StatisticsServer::DumpStatistics(int)
 {
+    mThis->mAnalyzer.DumpStatistics();
 }

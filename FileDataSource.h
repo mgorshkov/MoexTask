@@ -12,7 +12,7 @@ class FileDataSource : public IProducer
 public:
     FileDataSource(IStopperPtr aStopper, const std::string& aFileName);
 
-    DataPtr Produce() const override;
+    DataPtr Produce() override;
 
 private:
     IStopperPtr mStopper;

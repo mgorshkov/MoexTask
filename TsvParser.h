@@ -10,7 +10,7 @@ class TsvParser : public IProducer
 public:
     TsvParser(std::istream& aStream);
 
-    DataPtr Produce() const override;
+    DataPtr Produce() override;
 
 private:
     void ParseHeader();

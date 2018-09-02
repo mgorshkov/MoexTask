@@ -8,7 +8,7 @@ FileDataSource::FileDataSource(IStopperPtr aStopper, const std::string& aFileNam
 {
 }
 
-DataPtr FileDataSource::Produce() const
+DataPtr FileDataSource::Produce()
 {
     return mStopper->IsStopped() ? nullptr : mParser.Produce();
 }
