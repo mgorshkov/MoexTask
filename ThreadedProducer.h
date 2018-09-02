@@ -9,19 +9,19 @@ template <typename DependentProducer>
 class ThreadedProducer : public ThreadedActor
 {
 public:
-    ThreadedProducer(Synchronizer& aSynchronizer)
+    template <typename... Args>
+    ThreadedProducer(Synchronizer& aSynchronizer, Args&&... args)
         : ThreadedActor(aSynchronizer)
+        , mDependentProducer(mSynchronizer.mStopper, std::forward<Args>(args)...)
     {
     }
     
 protected:
-    template <typename... Args>
-    void Run(Args&&... args)
+    void Run() override
     {
-        DependentProducer dependentProducer(mSynchronizer.mStopper, std::forward<Args>(args)...);
         while (!mSynchronizer.IsStopped())
         {
-            DataPtr data = dependentProducer.Produce();
+            DataPtr data = mDependentProducer.Produce();
             if (!data)
                 break;
 
@@ -30,5 +30,8 @@ protected:
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
+
+private:
+    DependentProducer mDependentProducer;
 };
 

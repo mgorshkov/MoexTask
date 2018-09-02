@@ -5,18 +5,18 @@ Synchronizer::Synchronizer(IStopperPtr aStopper)
 {
 }
 
-void Synchronizer::EnqueueTask(TaskPtr&& aTask)
+void Synchronizer::EnqueueData(DataPtr&& aData)
 {
     {
-        UniqueLock<Mutex> lk(mQueueMutex);
-        mQueue.emplace(std::move(aTask));
+        std::unique_lock<std::mutex> lk(mQueueMutex);
+        mQueue.emplace(std::move(aData));
     }
-    mCondition.Broadcast();
+    mCondition.notify_all();
 }
 
-TaskPtr Synchronizer::GetQueueElement()
+DataPtr Synchronizer::GetQueueElement()
 {
-    UniqueLock<Mutex> lk(mQueueMutex);
+    std::unique_lock<std::mutex> lk(mQueueMutex);
     if (mQueue.empty())
         return nullptr;
     auto element = std::move(mQueue.front());
@@ -24,15 +24,15 @@ TaskPtr Synchronizer::GetQueueElement()
     return std::move(element);
 }
 
-void Synchronizer::Wait(Mutex& aMutex)
+void Synchronizer::Wait(std::unique_lock<std::mutex>& aLock)
 {
-    mCondition.Wait(aMutex);
+    mCondition.wait(aLock);
 }
 
 void Synchronizer::Stop()
 {
     mStopper->Stop();
-    mCondition.Broadcast();
+    mCondition.notify_all();
 }
 
 bool Synchronizer::IsStopped() const

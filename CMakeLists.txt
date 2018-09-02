@@ -1,16 +1,18 @@
 cmake_minimum_required(VERSION 3.2)
 project(MoexTask VERSION 0.0.1)
 
-add_executable(MoexTask
-    CommandLineParser.h
-    CommandLineParser.cpp
+add_executable(StatisticsServer
     Defines.h
+    FifoDataSource.h
+    FifoDataSource.cpp
     FileDataSource.h
     FileDataSource.cpp
+    IAnswerer.h
     IConsumer.h
     IProducer.h
+    IReader.h
     IStopper.h
-    Main.cpp
+    StatisticsServerMain.cpp
     StatisticsAnalyzer.h
     StatisticsAnalyzer.cpp
     StatisticsServer.cpp
@@ -19,6 +21,8 @@ add_executable(MoexTask
     Stopper.cpp
     Synchronizer.h
     Synchronizer.cpp
+    TcpDataSource.h
+    TcpDataSource.cpp
     TcpServer.h
     TcpServer.cpp
     ThreadedActor.h
@@ -28,12 +32,24 @@ add_executable(MoexTask
     TsvParser.cpp
     TsvParser.h
     UdpServer.h
-    UdpServer.cpp)
+    UdpServer.cpp
+)
 
-add_executable(MoexTaskClient Client.cpp)
-add_library(MoexTaskLib Lib.cpp)
+add_executable(StatisticsClient
+    StatisticsClientMain.cpp
+    StatisticsClient.cpp)
 
-set_target_properties(MoexTask MoexTaskClient PROPERTIES
+add_library(StatisticsLib
+    CommandLineParser.h
+    CommandLineParser.cpp
+)
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+target_link_libraries(StatisticsServer Threads::Threads)
+
+set_target_properties(StatisticsServer StatisticsClient PROPERTIES
     COMPILE_OPTIONS -Wpedantic -Wall -Wextra
     CMAKE_CXX_STANDARD 17
     CMAKE_CXX_STANDARD_REQUIRED ON
@@ -41,10 +57,10 @@ set_target_properties(MoexTask MoexTaskClient PROPERTIES
 
 set(CMAKE_CXX_FLAGS "-std=c++1z")
 
-target_link_libraries(MoexTask
-    MoexTaskLib
+target_link_libraries(StatisticsServer
+    StatisticsLib
 )
 
-target_link_libraries(MoexTaskClient
-    MoexTaskLib
+target_link_libraries(StatisticsClient
+    StatisticsLib
 )

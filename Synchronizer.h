@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Defines.h"
-#include "IStopper.h"
 #include <condition_variable>
 #include <mutex>
+
+#include "Defines.h"
+#include "IStopper.h"
 
 struct Synchronizer
 {
@@ -13,7 +14,7 @@ public:
     void EnqueueData(DataPtr&& aData);
     DataPtr GetQueueElement();
 
-    void Wait(std::mutex& aMutex);
+    void Wait(std::unique_lock<std::mutex>& aLock);
 
     void Stop();
 
@@ -22,5 +23,5 @@ public:
     DataQueue mQueue;
     std::condition_variable mCondition;
     std::mutex mQueueMutex;
-    std::shared_ptr<IStopper> mStopper;
+    IStopperPtr mStopper;
 };

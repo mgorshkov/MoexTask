@@ -13,9 +13,11 @@ public:
     DataPtr Produce() const override;
 
 private:
-    void ParseHeader(std::istream& aStream);
+    void ParseHeader();
 
     bool mIsValid;
+    bool mIsHeaderParsed;
+
     std::istream& mStream;
 
     enum class Column

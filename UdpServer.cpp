@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <iostream>
 #include <string.h>
 #include <netdb.h>
 #include <sys/types.h> 
@@ -21,13 +22,13 @@ bool UdpServer::CreateSocket()
     mSocket = socket(AF_INET, SOCK_DGRAM, 0);
     if (mSocket < 0)
     { 
-        std::cerr << "error opening socket" << std::ednl;
+        std::cerr << "error opening socket" << std::endl;
         return false;
     }
     return true;
 }
 
-void UdpServer::SerSockOpt()
+void UdpServer::SetSockOpt()
 {
     int optval = 1;
     setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR, 
@@ -35,14 +36,13 @@ void UdpServer::SerSockOpt()
 
     struct timeval readTimeout;
     readTimeout.tv_sec = 0;
-    readTimeout.tv_usec = 10; // 10 microseconds timeout
-    setsockopt(socketfd, SOL_SOCKET, SO_RCVTIMEO, &readTimeout, sizeof(readTimeout));
+    readTimeout.tv_usec = 0;
+    setsockopt(mSocket, SOL_SOCKET, SO_RCVTIMEO, &readTimeout, sizeof(readTimeout));
 }
 
-bool UdpoServer::Bind()
+bool UdpServer::Bind()
 {
-    sockaddr_in serveraddr;
-    memset(&serveraddr, 0, sizeof(serveraddr));
+    sockaddr_in serveraddr{0};
     serveraddr.sin_family = AF_INET;
     serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
     serveraddr.sin_port = htons((unsigned short)mPort);
@@ -56,7 +56,7 @@ bool UdpoServer::Bind()
     return true;
 }
 
-bool UdpServer::Run()
+bool UdpServer::Init()
 {
     if (!CreateSocket())
         return false;
@@ -73,10 +73,10 @@ bool UdpServer::Loop()
 {
     sockaddr_in clientaddr;
 
-    char buf[BufSize];
+    char buf[BufSize] = {0};
 
-    int clientlen = sizeof(clientaddr);
-    memset(buf, 0, sizeof(buf));
+    socklen_t clientlen = sizeof(clientaddr);
+
     int n = recvfrom(mSocket, buf, sizeof(buf), 0,
         (sockaddr*)&clientaddr, &clientlen);
     if (n < 0)
@@ -96,10 +96,10 @@ bool UdpServer::Loop()
     if (hostaddrp == nullptr)
     {
         std::cerr << "error on inet_ntoa" << std::endl << "datagram from " << hostp->h_name << "(" << hostaddrp << ")" << std::endl, 
-        std::cerr << "received %d/%d bytes: %s\n", strlen(buf), n, buf);
+        std::cerr << "received " << strlen(buf) << "/" << n << " bytes: " << buf << std::endl;
         return false;
     }   
-    n = sendto(sockfd, buf, strlen(buf), 0, 
+    n = sendto(mSocket, buf, strlen(buf), 0, 
        (struct sockaddr *) &clientaddr, clientlen);
     if (n < 0)
     {

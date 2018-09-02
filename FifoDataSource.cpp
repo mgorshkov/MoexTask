@@ -1,14 +1,14 @@
-#include "FileDataSource.h"
+#include "FifoDataSource.h"
 #include "TsvParser.h"
 
-FileDataSource::FileDataSource(IStopperPtr aStopper, const std::string& aFileName)
+FifoDataSource::FifoDataSource(IStopperPtr aStopper, const std::string& aFileName)
     : mStopper(aStopper)
     , mStream(aFileName)
     , mParser(mStream)
 {
 }
 
-DataPtr FileDataSource::Produce() const
+DataPtr FifoDataSource::Produce() const
 {
     return mStopper->IsStopped() ? nullptr : mParser.Produce();
 }

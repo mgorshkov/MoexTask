@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IConsumer.h"
 #include "ThreadedActor.h"
 
 template <typename DependentConsumer>
@@ -8,29 +9,31 @@ class ThreadedConsumer : public ThreadedActor
 public:
     ThreadedConsumer(Synchronizer& aSynchronizer)
         : ThreadedActor(aSynchronizer)
+        , mDependentConsumer(aSynchronizer)
     {
     }
 
 protected:
-    template <typename... Args>
-    void Run(std::forward<Args>(args)...)
+    void Run() override
     {
-        DependentConsumer dependentConsumer(mSynchronizer.mStopper);
         while (!mSynchronizer.IsStopped())
         {
-            Mutex mutex;
-            UniqueLock<Mutex> lock(mutex);
-            mSynchronizer.Wait(mutex);
+            std::mutex mutex;
+            std::unique_lock<std::mutex> lock(mutex);
+            mSynchronizer.Wait(lock);
             if (!mSynchronizer.IsStopped())
-                ProcessElement(dependentConsumer);
+                ProcessElement();
         }
     }
 
-    void ProcessElement(IConsumer& aDependentConsumer)
+    void ProcessElement()
     {
         auto element = mSynchronizer.GetQueueElement();
         if (element)
-            aDependentConsumer.Consume(std::move(element));
+            mDependentConsumer.Consume(std::move(element));
     }
+
+private:
+    DependentConsumer mDependentConsumer;
 };
 

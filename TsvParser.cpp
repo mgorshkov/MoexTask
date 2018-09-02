@@ -2,12 +2,12 @@
 
 TsvParser::TsvParser(std::istream& aStream)
     : mIsValid(false)
+    , mIsHeaderParsed(false)
     , mStream(aStream)
 {
-    ParseHeader();
 }
 
-std::vector<std::string> Split(const std::string &str, char d)
+std::vector<std::string> Split(const std::string &str, char d = '\t')
 {
     std::vector<std::string> r;
 
@@ -26,20 +26,20 @@ std::vector<std::string> Split(const std::string &str, char d)
     return r;
 }
 
-void TsvParser::ParseHeader(std::iostream& aStream)
+void TsvParser::ParseHeader()
 {
     std::string line;
     // header
-    std::getline(stream, line);
+    std::getline(mStream, line);
 
     auto strs = Split(line);
 
     for (std::size_t i = 0; i < mColumnCount; ++i)
     {
         mColumns[i] = -1;
-        for (std::size_t j = 0; j < strs.size(), ++j)
+        for (std::size_t j = 0; j < strs.size(); ++j)
         {
-            if (strs[j] == ColumnNames[i].mName)
+            if (strs[j] == mColumnNames[i].mName)
                 mColumns[i] = j;
         }
     }
@@ -55,12 +55,16 @@ void TsvParser::ParseHeader(std::iostream& aStream)
     }
 
     mIsValid = true;
+    mHeaderParsed = true;
 }
 
 DataPtr TsvParser::Produce() const
 {
-    if (!mIsValid())
+    if (!mIsValid)
         return nullptr;
+
+    if (!mHeaderParser)
+        ParseHeader();
 
     std::string line;        
     // data
@@ -68,5 +72,5 @@ DataPtr TsvParser::Produce() const
         return nullptr;
 
     auto strs = Split(line);
-    return std::make_unique<Data>(strs[columns[0]], std::atoi(strs[columns[1]]));
+    return std::make_unique<Data>(strs[mColumns[0]], std::atoi(strs[mColumns[1]].c_str()));
 }

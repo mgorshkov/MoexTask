@@ -15,6 +15,8 @@ public:
     void Join();
 
 protected:
+    virtual void Run() = 0;
+
     Synchronizer& mSynchronizer;
 
 private:
