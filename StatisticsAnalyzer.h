@@ -10,10 +10,15 @@ public:
 
     void Consume(DataPtr&& aData) override;
 
-    std::vector<Statistics> AllStats() const override;
-    Statistics StatsByEvent(const EventName& aEvent) const override;
+    EventStatisticsVector EventStats() const override;
+    EventStatistics EventStats(const EventName& aEvent) const override;
+
+    TotalStatisticsVector TotalStats() const override;
 
 private:
     Synchronizer& mSynchronizer;
     Log mEvents;
+    Times mTimes;
+
+    static int constexpr Multiplier = 5;
 };

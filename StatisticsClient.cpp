@@ -1,19 +1,19 @@
 #include "StatisticsClient.h"
 
-StatisticsClient::StatisticsClient(const std::string& aUdpHost, int aUdpPort)
+StatisticsClient::StatisticsClient(const std::string& aUdpHost, int aUdpPort, const std::string& aEvent)
+    : mUdpClient(aUdpHost, aUdpPort, aEvent)
 {
 }
 
-void StatisticsClient::Init()
+bool StatisticsClient::Init()
 {
+    return mUdpClient.Init();
 }
 
-void StatisticsClient::Start()
+bool StatisticsClient::Run()
 {
+    return mUdpClient.Run();
 }
 
-void StatisticsClient::Loop()
-{
-}
 
 

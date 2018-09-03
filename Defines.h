@@ -5,10 +5,14 @@
 #include <memory>
 #include <queue>
 #include <set>
+#include <map>
 #include <unordered_map>
+#include <iomanip>
 
 using EventName = std::string;
 using ResponseTime = int;
+
+using Times = std::map<ResponseTime, long long>;
 
 struct Data
 {
@@ -23,7 +27,7 @@ struct Data
     inline friend std::ostream& operator << (std::ostream& stream, const Data& aData)
     {
         stream << "EventName=" << aData.mEvent << " "
-            << "ResponseTime=" << aData.mAvgTsMr << " " << std::endl;
+            << "ResponseTime=" << aData.mAvgTsMr;
         return stream;
     }
 };
@@ -37,7 +41,6 @@ inline std::ostream& operator << (std::ostream& stream, const DataPtr& aData)
     else
         stream << "null";
         
-    stream << std::endl;
     return stream;
 }
 
@@ -45,7 +48,7 @@ using DataQueue = std::queue<DataPtr>;
 using DataSet = std::multiset<ResponseTime>;
 using Log = std::unordered_map<EventName, DataSet>;
 
-struct Statistics
+struct EventStatistics
 {
     int mMin; // min – Минимальное время ответа на транзакцию в микросекундах
     int mMedian; // - 50% - Медиана
@@ -53,7 +56,7 @@ struct Statistics
     int m99; // - 99% - 99% результатов меньше 140 микросекунд
     int m999; // - 99.9% - 99.9% результатов меньше 145 микросекунд
 
-    inline friend std::ostream& operator << (std::ostream& stream, const Statistics& aStatistics)
+    inline friend std::ostream& operator << (std::ostream& stream, const EventStatistics& aStatistics)
     {
         stream << "min=" << aStatistics.mMin << " "
             << "50%=" << aStatistics.mMedian << " "
@@ -63,3 +66,42 @@ struct Statistics
         return stream;
     }
 };
+
+using EventStatisticsVector = std::vector<EventStatistics>;
+
+inline std::ostream& operator << (std::ostream& stream, const EventStatisticsVector& aStatisticsVector)
+{
+    for (const auto& eventStat : aStatisticsVector)
+        stream << eventStat;
+
+    return stream;
+}
+
+struct TotalStatistics
+{
+    int mExecTime; // Время ответа на транзакцию, кратное 5 микросекундам
+    long mTransNo; // Количество транзакций с таким временем
+    double mWeight; // Процент от общего количества транзакций
+    double mPercent; // Процент от общего количества транзакций, имеющих время ответа <= EXECTIME
+
+    inline friend std::ostream& operator << (std::ostream& stream, const TotalStatistics& aStatistics)
+    {
+        stream << aStatistics.mExecTime << " "
+            << aStatistics.mTransNo << " "
+            << std::setw(2) << std::fixed << std::setprecision(2) << aStatistics.mWeight << " "
+            << std::setw(2) << std::fixed << std::setprecision(2) << aStatistics.mPercent << std::endl;
+        return stream;
+    }
+};
+
+using TotalStatisticsVector = std::vector<TotalStatistics>;
+
+inline std::ostream& operator << (std::ostream& stream, const TotalStatisticsVector& aStatistics)
+{
+    stream << "ExecTime TransNo Weight,% Percent" << std::endl;
+
+    for (const auto& totalStat : aStatistics)
+        stream << totalStat;
+
+    return stream;
+}

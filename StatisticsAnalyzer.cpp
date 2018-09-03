@@ -5,35 +5,44 @@ StatisticsAnalyzer::StatisticsAnalyzer(Synchronizer& aSynchronizer)
 {
 }
 
+static int Round(ResponseTime aTime, ResponseTime aMultiple)
+{
+    return ((aTime + aMultiple / 2) / aMultiple) * aMultiple;
+}
+
 void StatisticsAnalyzer::Consume(DataPtr&& aData)
 {
     if (mSynchronizer.IsStopped())
         return;
 
     mEvents[aData->mEvent].insert(aData->mAvgTsMr);
+    ++mTimes[Round(aData->mAvgTsMr, Multiplier)];
 }
 
-std::vector<Statistics> StatisticsAnalyzer::AllStats() const
+EventStatisticsVector StatisticsAnalyzer::EventStats() const
 {
-    std::vector<Statistics> statistics;
+    EventStatisticsVector statistics;
     for (const auto& event : mEvents)
-        statistics.push_back(StatsByEvent(event.first));
+        statistics.push_back(EventStats(event.first));
     return statistics;
 }
 
-Statistics StatisticsAnalyzer::StatsByEvent(const EventName& aEvent) const
+EventStatistics StatisticsAnalyzer::EventStats(const EventName& aEvent) const
 {
-    Statistics statistics{0};
+    EventStatistics statistics{0};
+#ifdef DEBUG_PRINT
+    std::cout << "EventStats for " << aEvent << " " << aEvent.length() << std::endl;
+#endif
     auto eventsIt = mEvents.find(aEvent);
     if (eventsIt != mEvents.end())
     {
-        statistics.mMin = *eventsIt->second.begin();
         auto CalcStats = [&eventsIt](double percent)
         {
             auto timesIt = eventsIt->second.begin();
-            std::advance(timesIt, eventsIt->second.size() * 0.5);
+            std::advance(timesIt, eventsIt->second.size() * percent);
             return *timesIt;
         };
+        statistics.mMin = *eventsIt->second.begin();
         statistics.mMedian = CalcStats(0.5);
         statistics.m90 = CalcStats(0.9);
         statistics.m99 = CalcStats(0.99);
@@ -42,4 +51,21 @@ Statistics StatisticsAnalyzer::StatsByEvent(const EventName& aEvent) const
     return statistics;
 }
 
+TotalStatisticsVector StatisticsAnalyzer::TotalStats() const
+{
+    TotalStatisticsVector statistics;
+    auto size = mTimes.size();
+    double prevPercent = 0.0;
+    for (const auto& time : mTimes)
+    {
+        TotalStatistics stats;
+        stats.mExecTime = time.first;
+        stats.mTransNo = time.second;
+        stats.mWeight = static_cast<double>(time.second) / size * 100;
+        stats.mPercent = stats.mWeight + prevPercent;
+        prevPercent = stats.mPercent;
 
+        statistics.push_back(stats);
+    }
+    return statistics;
+}

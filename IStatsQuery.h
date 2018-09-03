@@ -8,6 +8,8 @@ class IStatsQuery
 public:
     virtual ~IStatsQuery() = default;
 
-    virtual std::vector<Statistics> AllStats() const = 0;
-    virtual Statistics StatsByEvent(const EventName& aEvent) const = 0;
+    virtual EventStatisticsVector EventStats() const = 0;
+    virtual EventStatistics EventStats(const EventName& aEvent) const = 0;
+
+    virtual TotalStatisticsVector TotalStats() const = 0;
 };

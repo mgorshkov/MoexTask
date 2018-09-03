@@ -2,18 +2,17 @@
 
 #include <string>
 
+#include "UdpClient.h"
+
 class StatisticsClient
 {
 public:
-    StatisticsClient(const std::string& aUdpHost, int aUdpPort);
+    StatisticsClient(const std::string& aUdpHost, int aUdpPort, const std::string& aEvent);
 
-    void Init();
+    bool Init();
 
-    void Start();
-    void Loop();
+    bool Run();
 
 private:
-    std::string mUdpHost;
-    int mUdpPort;
-
+    UdpClient mUdpClient;
 };

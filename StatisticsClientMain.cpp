@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
     {
         if (argc == 1)
         {
-            std::cerr << "Statistics UDP client. Usage: StatisticsClient -udphost=<statistics UDP host> -udpport=<statistics UDP port>" << std::endl;
+            std::cerr << "Statistics UDP client. Usage: StatisticsClient -udphost=<statistics UDP host> -udpport=<statistics UDP port> -event=<event name>" << std::endl;
             return 1;
         }
 
@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
 
         auto udpHost = commandLineParser.GetOption("udphost");
         auto udpPort = commandLineParser.GetOption("udpport");
+        auto event = commandLineParser.GetOption("event");
         
         if (!udpHost)
         {
@@ -30,11 +31,17 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        StatisticsClient client(*udpHost, std::atoi(udpPort->c_str()));
+        if (!event)
+        {
+            std::cerr << "Event is not specified" << std::endl;
+            return 1;
+        }
 
-        client.Init();
-        client.Start();
-        client.Loop();
+        StatisticsClient client(*udpHost, std::atoi(udpPort->c_str()), *event);
+
+        if (!client.Init())
+            return 1;
+        client.Run();
     }
     catch (std::exception& e)
     {

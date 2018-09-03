@@ -42,7 +42,11 @@ add_executable(StatisticsServer
 
 add_executable(StatisticsClient
     StatisticsClientMain.cpp
-    StatisticsClient.cpp)
+    StatisticsClient.h
+    StatisticsClient.cpp
+    UdpClient.h
+    UdpClient.cpp
+)
 
 add_library(StatisticsLib
     CommandLineParser.h

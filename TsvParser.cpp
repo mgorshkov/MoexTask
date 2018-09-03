@@ -1,4 +1,6 @@
-﻿#include "TsvParser.h"
+﻿#include <regex>
+
+#include "TsvParser.h"
 
 TsvParser::TsvParser(std::istream& aStream)
     : mIsValid(false)
@@ -7,23 +9,13 @@ TsvParser::TsvParser(std::istream& aStream)
 {
 }
 
-std::vector<std::string> Split(const std::string& str, char sep = '\t')
+std::vector<std::string> Split(const std::string& str)
 {
-    std::vector<std::string> r;
-
-    std::string::size_type start = 0;
-    auto stop = str.find_first_of(sep);
-    while (stop != std::string::npos)
-    {
-        r.push_back(str.substr(start, stop - start));
-
-        start = stop + 1;
-        stop = str.find_first_of(sep, start);
-    }
-
-    r.push_back(str.substr(start));
-
-    return r;
+    std::vector<std::string> result;
+    static std::regex pattern{R"(\s+)"};
+    std::copy(std::sregex_token_iterator(str.begin(), str.end(), pattern, -1),
+        std::sregex_token_iterator(), std::back_inserter(result));
+    return result;
 }
 
 void TsvParser::ParseHeader()
@@ -72,5 +64,12 @@ DataPtr TsvParser::Produce()
         return nullptr;
 
     auto strs = Split(line);
+    if (strs.size() < std::max(mColumns[0], mColumns[1]) + 1)
+    {
+        std::cerr << "Incorrect stream format" << std::endl;
+        mIsValid = false;
+        return nullptr;
+    }
+
     return std::make_unique<Data>(strs[mColumns[0]], std::atoi(strs[mColumns[1]].c_str()));
 }

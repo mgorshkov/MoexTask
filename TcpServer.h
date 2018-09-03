@@ -17,9 +17,11 @@ private:
     void SetSockOpt();
 
     bool Bind();
+    bool Listen();
 
     static const int BufSize = 1024;
     int mPort;
     IReader* mReader;
+    int mBindSocket;
     int mSocket;
 };

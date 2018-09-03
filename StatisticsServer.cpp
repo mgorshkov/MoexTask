@@ -98,8 +98,11 @@ void StatisticsServer::DumpStatistics(int)
     std::cout << "StatisticsServer::DumpStatistics" << std::endl;
 #endif
 
-    auto stats = mThis->mAnalyzer.GetConsumer()->AllStats();
-    for (const auto& stat : stats)
-        std::cout << stat;
-}
+    auto consumer = mThis->mAnalyzer.GetConsumer();
 
+    auto eventStats = consumer->EventStats();
+    std::cout << eventStats;
+
+    auto totalStats = consumer->TotalStats();
+    std::cout << totalStats;
+}

@@ -75,36 +75,38 @@ bool UdpServer::Loop()
 {
     sockaddr_in clientaddr;
 
-    std::string buf;
-    buf.reserve(BufSize);
+    char buf[BufSize] = {0};
 
     socklen_t clientlen = sizeof(clientaddr);
 
-    int n = recvfrom(mSocket, &buf[0], BufSize, 0,
-        (sockaddr*)&clientaddr, &clientlen);
+    int n = recvfrom(mSocket, buf, BufSize, 0, (sockaddr*)&clientaddr, &clientlen);
     if (n < 0)
         return false;
-
-    auto statistics = mStatsQuery->StatsByEvent(buf);
-    std::ostringstream stream(buf);
+#ifdef DEBUG_PRINT
+    std::cout << "UDP: received " << n << " bytes: " << buf << std::endl;
+#endif
+    auto statistics = mStatsQuery->EventStats(buf);
+    std::ostringstream stream;
     stream << statistics;
+    std::string out = stream.str();
+#ifdef DEBUG_PRINT
+    std::cout << "UDP: statistics: " << out << std::endl;
+#endif
 
     hostent *hostp = gethostbyaddr((const char*)&clientaddr.sin_addr.s_addr, 
-          sizeof(clientaddr.sin_addr.s_addr), AF_INET);
+        sizeof(clientaddr.sin_addr.s_addr), AF_INET);
     if (hostp == nullptr)
     {
-        std::cerr << "error on gethostbyaddr";
+        std::cerr << "error on gethostbyaddr" << std::endl;
         return false;
     }
     char *hostaddrp = inet_ntoa(clientaddr.sin_addr);
     if (hostaddrp == nullptr)
     {
-        std::cerr << "error on inet_ntoa" << std::endl << "datagram from " << hostp->h_name << "(" << hostaddrp << ")" << std::endl, 
-        std::cerr << "received " << BufSize << "/" << n << " bytes: " << buf << std::endl;
+        std::cerr << "error on inet_ntoa" << std::endl << "datagram from " << hostp->h_name << "(" << hostaddrp << ")" << std::endl;
         return false;
     }   
-    n = sendto(mSocket, buf.c_str(), BufSize, 0, 
-       (struct sockaddr *) &clientaddr, clientlen);
+    n = sendto(mSocket, out.c_str(), out.length(), 0, (struct sockaddr*)&clientaddr, clientlen);
     if (n < 0)
     {
         std::cerr << "error on response";
