@@ -1,4 +1,7 @@
 #include <signal.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <iostream>
 
 #include "StatisticsServer.h"
 #include "Stopper.h"
@@ -22,15 +25,24 @@ StatisticsServer::StatisticsServer(
     mThis = this;
 }
 
-void StatisticsServer::Init()
+bool StatisticsServer::Init()
 {
     mSources.clear();
     if (mDataFileName)
+    {
+        if (access(mDataFileName->c_str(), F_OK) == -1)
+        {
+            std::cerr << "File " << *mDataFileName << " doest not exist." << std::endl;
+            return false;
+        }
         mSources.emplace_back(std::make_unique<ThreadedProducer<FileDataSource>>(mSynchronizer, *mDataFileName));
+    }
     if (mFifoFileName)
         mSources.emplace_back(std::make_unique<ThreadedProducer<FileDataSource>>(mSynchronizer, *mFifoFileName));
     if (mTcpPort)
         mSources.emplace_back(std::make_unique<ThreadedProducer<TcpDataSource>>(mSynchronizer, *mTcpPort));
+
+    return true;
 }
 
 void StatisticsServer::Start()

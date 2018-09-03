@@ -34,7 +34,9 @@ int main(int argc, char* argv[])
 
         StatisticsServer server(dataFileName, fifoFileName, tcpPort ? std::atoi(tcpPort->c_str()) : std::make_optional<int>(), std::atoi(udpPort->c_str()));
 
-        server.Init();
+        if (!server.Init())
+            return 1;
+
         server.Start();
         server.Loop();
     }

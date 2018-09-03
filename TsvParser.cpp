@@ -60,13 +60,13 @@ void TsvParser::ParseHeader()
 
 DataPtr TsvParser::Produce()
 {
-    if (!mIsValid)
-        return nullptr;
-
     if (!mIsHeaderParsed)
         ParseHeader();
 
-    std::string line;        
+    if (!mIsValid)
+        return nullptr;
+
+    std::string line;
     // data
     if (!std::getline(mStream, line))
         return nullptr;

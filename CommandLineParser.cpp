@@ -14,7 +14,7 @@ std::optional<std::string> CommandLineParser::GetOption(const std::string& mName
         std::string pattern = "-" + mName + "=";
         auto index = arg.find(pattern);
         if (index == 0)
-            return arg.substr(index, arg.length());
+            return arg.substr(index + pattern.length(), arg.length());
     }
     return std::optional<std::string>{};
 }
