@@ -113,6 +113,7 @@ bool TcpServer::Loop()
     if (hostaddrp == nullptr)
     {
         std::cerr << "error on inet_ntoa" << std::endl;
+        return false;
     }
 #ifdef DEBUG_PRINT
     std::cout << "Server established connection with " << hostp->h_name << "(" << hostaddrp << ")" << std::endl; 
@@ -128,7 +129,7 @@ bool TcpServer::Loop()
     std::cout << "TCP server: received " << n << " bytes: " << buf << std::endl;
 #endif
 
-    mReader->Read(buf, BufSize);
+    mReader->Read(buf, n);
 
     return true;
 }

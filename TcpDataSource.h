@@ -20,6 +20,8 @@ public:
 
     DataPtr Produce() override;
 
+    void Join();
+
 private:
     static void ThreadProc(TcpDataSource* aContext);
 

@@ -11,8 +11,19 @@ TcpDataSource::TcpDataSource(IStopperPtr aStopper, int aPort)
 
 DataPtr TcpDataSource::Produce()
 {
-    std::lock_guard<std::mutex> lk(mStreamMutex);
+    if (mStopper->IsStopped())
+        return nullptr;
+
+    std::unique_lock<std::mutex> lk(mStreamMutex);
+    mCondition.wait(lk);
+
     return mParser.Produce();
+}
+
+void TcpDataSource::Join()
+{
+    if (mThread.joinable())
+        mThread.join();
 }
 
 void TcpDataSource::Read(const char* aData, std::size_t aSize)

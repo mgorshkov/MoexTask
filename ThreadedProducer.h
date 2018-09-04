@@ -26,7 +26,12 @@ protected:
             std::cout << "ThreadedProducer::Run, data=" << data << ";" << std::endl;
 #endif
             if (!data)
+            {
+#ifdef DEBUG_PRINT
+                std::cout << "ThreadedProducer::Run, empty data, break" << std::endl;
+#endif
                 break;
+            }
 
             mSynchronizer.EnqueueData(std::move(data));
 
