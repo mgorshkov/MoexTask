@@ -5,6 +5,10 @@ class UdpClient
 public:
     UdpClient(const std::string& aHost, int aPort, const std::string& aEvent);
 
+    UdpClient(const UdpClient&) = delete;
+
+    UdpClient& operator = (const UdpClient&) = delete;
+
     bool Init();
 
     bool Run();

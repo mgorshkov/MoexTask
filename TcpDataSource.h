@@ -19,6 +19,10 @@ public:
     TcpDataSource(IStopperPtr aStopper, int mPort);
     ~TcpDataSource();
 
+    TcpDataSource(const TcpDataSource&) = delete;
+
+    TcpDataSource& operator = (const TcpDataSource&) = delete;
+
     DataPtr Produce() override;
 
     void Stop() override;

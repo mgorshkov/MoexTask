@@ -11,6 +11,9 @@ TcpDataSource::TcpDataSource(IStopperPtr aStopper, int aPort)
 
 TcpDataSource::~TcpDataSource()
 {
+#ifdef DEBUG_PRINT
+    std::cout << "~TcpDataSource" << std::endl;
+#endif
     Stop();
 }
 
@@ -30,8 +33,16 @@ DataPtr TcpDataSource::Produce()
 
 void TcpDataSource::Stop()
 {
+#ifdef DEBUG_PRINT
+    std::cout << "TcpDataSource::Stop" << std::endl;
+#endif
+
     if (mThread.joinable())
         mThread.join();
+
+#ifdef DEBUG_PRINT
+    std::cout << "TcpDataSource::Stop - finished" << std::endl;
+#endif
 }
 
 void TcpDataSource::Read(const char* aData, std::size_t aSize)

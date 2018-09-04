@@ -10,6 +10,10 @@ class TsvParser : public IProducer
 public:
     TsvParser(std::istream& aStream);
 
+    TsvParser(const TsvParser&) = delete;
+
+    TsvParser& operator = (const TsvParser&) = delete;
+
     DataPtr Produce() override;
 
 private:

@@ -76,6 +76,10 @@ void StatisticsServer::Loop()
     for (const auto& source : mSources)
         source->Join();
 
+#ifdef DEBUG_PRINT
+    std::cout << "StatisticsServer::Loop, sources joined" << std::endl;
+#endif
+
     mAnalyzer.Join();
 
 #ifdef DEBUG_PRINT

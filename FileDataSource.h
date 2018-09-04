@@ -12,6 +12,10 @@ class FileDataSource : public IProducer
 public:
     FileDataSource(IStopperPtr aStopper, const std::string& aFileName);
 
+    FileDataSource(const FileDataSource&) = delete;
+
+    FileDataSource& operator = (const FileDataSource&) = delete;
+
     DataPtr Produce() override;
 
 private:

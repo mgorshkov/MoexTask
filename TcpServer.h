@@ -7,6 +7,10 @@ class TcpServer
 public:
     TcpServer(int aPort, IReaderPtr aReader);
 
+    TcpServer(const TcpServer&) = delete;
+
+    TcpServer& operator = (const TcpServer&) = delete;
+
     bool Init();
 
     bool Loop();

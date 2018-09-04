@@ -7,6 +7,10 @@ class UdpServer
 public:
     UdpServer(int aPort, IStatsQuery* aStatsQuery);
 
+    UdpServer(const UdpServer&) = delete;
+
+    UdpServer& operator = (const UdpServer&) = delete;
+
     bool Init();
 
     bool Loop();
