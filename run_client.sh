@@ -1,1 +1,1 @@
-./StatisticsClient -udphost=localhost -udpport=1235
+./StatisticsClient -udphost=localhost -udpport=1235 -event=ORDER

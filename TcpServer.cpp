@@ -37,7 +37,7 @@ void TcpServer::SetSockOpt()
         (const void*)&optval, sizeof(optval));
 
     struct timeval readTimeout;
-    readTimeout.tv_sec = 10;
+    readTimeout.tv_sec = 1;
     readTimeout.tv_usec = 0;
     setsockopt(mBindSocket, SOL_SOCKET, SO_RCVTIMEO, &readTimeout, sizeof(readTimeout));
 }
@@ -97,8 +97,10 @@ bool TcpServer::Loop()
     char buf[BufSize] = {0};
     mSocket = accept(mBindSocket, (sockaddr*)&clientaddr, &clientlen);
     if (mSocket < 0)
-    { 
+    {
+#ifdef DEBUG_PRINT
         std::cerr << "error on accept" << std::endl;
+#endif
         return false;
     }
     

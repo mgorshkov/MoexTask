@@ -23,11 +23,19 @@ void ThreadedActor::Start()
 
 void ThreadedActor::Join()
 {
+#ifdef DEBUG_PRINT
+    std::cout << "ThreadedActor::Join" << std::endl;
+#endif
+
     if (!mIsRunning)
         return;
     if (mThread.joinable())
         mThread.join();
     mIsRunning = false;
+
+#ifdef DEBUG_PRINT
+    std::cout << "ThreadedActor::Join finished" << std::endl;
+#endif
 }
 
 void ThreadedActor::ThreadProc(ThreadedActor* aThis)
@@ -38,7 +46,7 @@ void ThreadedActor::ThreadProc(ThreadedActor* aThis)
     }
     catch (const std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << "Exception in ThreadedActor: " << e.what() << std::endl;
     }
 }
 

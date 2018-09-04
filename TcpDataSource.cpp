@@ -36,7 +36,6 @@ void TcpDataSource::Stop()
 #ifdef DEBUG_PRINT
     std::cout << "TcpDataSource::Stop" << std::endl;
 #endif
-
     if (mThread.joinable())
         mThread.join();
 
@@ -76,6 +75,7 @@ void TcpDataSource::ThreadProc(TcpDataSource* aContext)
     }
     catch (const std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << "Exception in TcpDataSource: " << e.what() << std::endl;
     }
+    aContext->mCondition.notify_one();
 }
