@@ -9,13 +9,21 @@ TcpDataSource::TcpDataSource(IStopperPtr aStopper, int aPort)
 {
 }
 
+TcpDataSource::~TcpDataSource()
+{
+    Join();
+}
+
 DataPtr TcpDataSource::Produce()
 {
     if (mStopper->IsStopped())
         return nullptr;
 
     std::unique_lock<std::mutex> lk(mStreamMutex);
-    mCondition.wait(lk);
+    mCondition.wait(lk, [this](){return mStopper->IsStopped();});
+
+    if (mStopper->IsStopped())
+        return nullptr;
 
     return mParser.Produce();
 }
@@ -52,6 +60,9 @@ void TcpDataSource::ThreadProc(TcpDataSource* aContext)
             server.Loop();
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+#ifdef DEBUG_PRINT
+        std::cout << "TcpDataSource::ThreadProc() finished" << std::endl;
+#endif
     }
     catch (const std::exception& e)
     {

@@ -17,15 +17,16 @@ class TcpDataSource : public IProducer, public IReader
 {
 public:
     TcpDataSource(IStopperPtr aStopper, int mPort);
+    ~TcpDataSource();
 
     DataPtr Produce() override;
-
-    void Join();
 
 private:
     static void ThreadProc(TcpDataSource* aContext);
 
     void Read(const char* aData, std::size_t aSize) override;
+
+    void Join();
 
     IStopperPtr mStopper;
     int mPort;
