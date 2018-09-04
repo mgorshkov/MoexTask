@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        StatisticsServer server(dataFileName, fifoFileName, tcpPort ? std::atoi(tcpPort->c_str()) : std::make_optional<int>(), std::atoi(udpPort->c_str()));
+        StatisticsServer server(dataFileName, fifoFileName, tcpPort ? std::atoi(tcpPort->c_str()) : std::optional<int>(), std::atoi(udpPort->c_str()));
 
         if (!server.Init())
             return 1;

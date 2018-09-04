@@ -22,13 +22,7 @@ protected:
     void Run() override
     {
         while (!mSynchronizer.IsStopped())
-        {
-            std::mutex mutex;
-            std::unique_lock<std::mutex> lock(mutex);
-            mSynchronizer.Wait(lock);
-            if (!mSynchronizer.IsStopped())
-                ProcessElement();
-        }
+            ProcessElement();
     }
 
     void ProcessElement()

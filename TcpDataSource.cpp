@@ -11,7 +11,7 @@ TcpDataSource::TcpDataSource(IStopperPtr aStopper, int aPort)
 
 TcpDataSource::~TcpDataSource()
 {
-    Join();
+    Stop();
 }
 
 DataPtr TcpDataSource::Produce()
@@ -28,7 +28,7 @@ DataPtr TcpDataSource::Produce()
     return mParser.Produce();
 }
 
-void TcpDataSource::Join()
+void TcpDataSource::Stop()
 {
     if (mThread.joinable())
         mThread.join();
@@ -42,7 +42,6 @@ void TcpDataSource::Read(const char* aData, std::size_t aSize)
         std::lock_guard<std::mutex> lk(mStreamMutex);
         mStream.write(aData, aSize);
     }
-    mNotified = true;
     mCondition.notify_one();
 }
 

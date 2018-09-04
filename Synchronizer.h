@@ -14,8 +14,6 @@ public:
     void EnqueueData(DataPtr&& aData);
     DataPtr GetQueueElement();
 
-    void Wait(std::unique_lock<std::mutex>& aLock);
-
     void Stop();
 
     bool IsStopped() const;

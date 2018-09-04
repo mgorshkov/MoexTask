@@ -37,9 +37,9 @@ bool StatisticsServer::Init()
         }
         mSources.emplace_back(std::make_unique<ThreadedProducer<FileDataSource>>(mSynchronizer, *mDataFileName));
     }
-    if (mFifoFileName)
+    if (mFifoFileName.has_value())
         mSources.emplace_back(std::make_unique<ThreadedProducer<FileDataSource>>(mSynchronizer, *mFifoFileName));
-    if (mTcpPort)
+    if (mTcpPort.has_value())
         mSources.emplace_back(std::make_unique<ThreadedProducer<TcpDataSource>>(mSynchronizer, *mTcpPort));
 
     return true;

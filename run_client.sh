@@ -1,0 +1,1 @@
+./StatisticsClient -udphost=localhost -udpport=1235

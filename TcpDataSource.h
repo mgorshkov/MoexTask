@@ -21,12 +21,12 @@ public:
 
     DataPtr Produce() override;
 
+    void Stop() override;
+
 private:
     static void ThreadProc(TcpDataSource* aContext);
 
     void Read(const char* aData, std::size_t aSize) override;
-
-    void Join();
 
     IStopperPtr mStopper;
     int mPort;
@@ -35,8 +35,6 @@ private:
     std::stringstream mStream;
     std::mutex mStreamMutex;
     std::condition_variable mCondition;
-    std::atomic_bool mDone{false};
-    std::atomic_bool mNotified{false};
 
     std::thread mThread;
 };

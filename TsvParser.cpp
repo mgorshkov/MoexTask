@@ -18,11 +18,39 @@ std::vector<std::string> Split(const std::string& str)
     return result;
 }
 
+static inline void ltrim(std::string &s)
+{
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch)
+        {
+            return !std::isspace(ch);
+        }));
+}
+
+static inline void rtrim(std::string &s)
+{
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+        return !std::isspace(ch);
+        }).base(), s.end());
+}
+
+// trim from both ends (in place)
+static inline void trim(std::string &s)
+{
+    ltrim(s);
+    rtrim(s);
+}
+
 void TsvParser::ParseHeader()
 {
     std::string line;
-    // header
-    std::getline(mStream, line);
+    while (line.empty())
+    {
+        // header
+        if (!std::getline(mStream, line))
+            return;
+
+        trim(line);
+    }
 
     auto strs = Split(line);
 
@@ -59,9 +87,14 @@ DataPtr TsvParser::Produce()
         return nullptr;
 
     std::string line;
-    // data
-    if (!std::getline(mStream, line))
-        return nullptr;
+    while (line.empty())
+    {
+        // data
+        if (!std::getline(mStream, line))
+            return nullptr;
+
+        trim(line);
+    }
 
     auto strs = Split(line);
     if (strs.size() < std::max(mColumns[0], mColumns[1]) + 1)

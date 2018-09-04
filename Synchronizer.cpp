@@ -16,17 +16,14 @@ void Synchronizer::EnqueueData(DataPtr&& aData)
 
 DataPtr Synchronizer::GetQueueElement()
 {
-    std::unique_lock<std::mutex> lk(mQueueMutex);
+    std::unique_lock<std::mutex> lock(mQueueMutex);
+    mCondition.wait(lock);
+
     if (mQueue.empty())
         return nullptr;
     auto element = std::move(mQueue.front());
     mQueue.pop();
     return std::move(element);
-}
-
-void Synchronizer::Wait(std::unique_lock<std::mutex>& aLock)
-{
-    mCondition.wait(aLock);
 }
 
 void Synchronizer::Stop()

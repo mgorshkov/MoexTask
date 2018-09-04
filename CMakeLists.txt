@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 project(MoexTask VERSION 0.0.1)
 
-set(DEBUG_PRINT "0")
+set(DEBUG_PRINT "1")
 
 if (DEBUG_PRINT)
     message("DEBUG_PRINT is activated!")

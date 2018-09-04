@@ -1,0 +1,1 @@
+cat sampledata | netcat localhost 1235
